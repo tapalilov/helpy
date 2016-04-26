@@ -23,17 +23,9 @@ class Vote < ActiveRecord::Base
 
   def increment_points_cache
 
-    case self.voteable_type
-
-    when "Topic"
-      model = Topic.find(self.voteable_id)
-    when "Doc"
-      model = Doc.find(self.voteable_id)
-    when "Post"
-      model = Post.find(self.voteable_id)
-    end
-    model.points += self.points
-    model.save
+    self.voteable_type.constantize.find(self.voteable_id).tap do |model|
+      model.points += self.points
+    end.save
 
   rescue
     logger.info("Could not increment cache")
